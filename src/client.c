@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /** \file client.c
-    \brief Z39.50 client 
+    \brief Z39.50 client
 */
 
 #if HAVE_CONFIG_H
@@ -286,7 +286,7 @@ int client_show_raw_begin(struct client *cl, int position,
 
         if (!cl->connection)
             return -1;
-    
+
 
         rr = xmalloc(sizeof(*rr));
         rr->position = position;
@@ -306,13 +306,13 @@ int client_show_raw_begin(struct client *cl, int position,
 
         assert(nativesyntax);
         rr->nativesyntax = xstrdup(nativesyntax);
-            
+
         rr->next = 0;
-        
+
         for (rrp = &cl->show_raw; *rrp; rrp = &(*rrp)->next)
             ;
         *rrp = rr;
-        
+
         if (cl->state == Client_Failed)
         {
             client_show_raw_error(cl, "client failed");
@@ -537,7 +537,7 @@ void client_search_response(struct client *cl)
     ZOOM_resultset resultset = cl->resultset;
 
     const char *error, *addinfo = 0;
-    
+
     if (ZOOM_connection_error(link, &error, &addinfo))
     {
         cl->hits = 0;
@@ -597,7 +597,7 @@ static void client_record_ingest(struct client *cl)
             NMEM nmem = nmem_create();
             const char *xmlrec;
             char type[80];
-            
+
             const char *s = session_setting_oneval(sdb, PZ_NATIVESYNTAX);
             if (nativesyntax_to_type(s, type, rec))
                 yaz_log(YLOG_WARN, "Failed to determine record type");
@@ -677,7 +677,7 @@ static void client_set_facets_request(struct client *cl, ZOOM_connection link)
     struct session_database *sdb = client_get_database(cl);
 
     WRBUF w = wrbuf_alloc();
-    
+
     struct setting *s;
 
     for (s = sdb->settings[PZ_FACETMAP]; s; s = s->next)
@@ -721,7 +721,7 @@ static const char *get_strategy_plus_sort(struct client *l, const char *field)
     struct setting *s;
 
     const char *strategy_plus_sort = 0;
-    
+
     for (s = sdb->settings[PZ_SORTMAP]; s; s = s->next)
     {
         char *p = strchr(s->name + 3, ':');
@@ -830,7 +830,7 @@ void client_start_search(struct client *cl)
     else
     {
         yaz_log(YLOG_LOG, "Search %s PQF: %s", client_get_id(cl), cl->pquery);
-        
+
         ZOOM_query_prefix(q, cl->pquery);
     }
     if (se->sorted_results)
@@ -904,7 +904,7 @@ struct client *client_create(const char *id)
     assert(id);
     cl->id = xstrdup(id);
     client_use(1);
-    
+
     return cl;
 }
 
@@ -1021,7 +1021,7 @@ static char *make_cqlquery(struct client *cl, Z_RPNQuery *zquery)
     else
     {
         r = xstrdup(wrbuf_cstr(wrb));
-    }     
+    }
     wrbuf_destroy(wrb);
     cql_transform_close(cqlt);
     return r;
@@ -1035,7 +1035,7 @@ static char *make_solrquery(struct client *cl, Z_RPNQuery *zquery)
     char *r = 0;
     WRBUF wrb = wrbuf_alloc();
     int status;
-    
+
     if ((status = solr_transform_rpn2solr_wrbuf(sqlt, wrb, zquery)))
     {
         yaz_log(YLOG_WARN, "Failed to generate SOLR query, code=%d", status);
@@ -1059,7 +1059,7 @@ const char *client_get_facet_limit_local(struct client *cl,
     for (; (name = facet_limits_get(cl->facet_limits, *l, &value)); (*l)++)
     {
         struct setting *s = 0;
-        
+
         for (s = sdb->settings[PZ_LIMITMAP]; s; s = s->next)
         {
             const char *p = strchr(s->name + 3, ':');
@@ -1069,7 +1069,7 @@ const char *client_get_facet_limit_local(struct client *cl,
                 const char *cp = s->value + 6;
                 while (*cp == ' ')
                     cp++;
-                    
+
                 nmem_strsplit_escape2(nmem, "|", value, values,
                                       num, 1, '\\', 1);
                 (*l)++;
@@ -1157,7 +1157,7 @@ static int apply_limit(struct session_database *sdb,
     nmem_destroy(nmem_tmp);
     return ret;
 }
-                        
+
 // Parse the query given the settings specific to this client
 // return 0 if query is OK but different from before
 // return 1 if query is OK but same as before
@@ -1255,11 +1255,11 @@ int client_parse_query(struct client *cl, const char *query,
         ret_value = 0;
     }
     wrbuf_destroy(w_pqf);
-    
+
     xfree(cl->cqlquery);
     cl->cqlquery = 0;
 
-    odr_out = odr_createmem(ODR_ENCODE);    
+    odr_out = odr_createmem(ODR_ENCODE);
     zquery = p_query_rpn(odr_out, cl->pquery);
     if (!zquery)
     {
@@ -1272,7 +1272,7 @@ int client_parse_query(struct client *cl, const char *query,
     {
         session_log(se, YLOG_LOG, "PQF for %s: %s",
                     client_get_id(cl), cl->pquery);
-        
+
         /* Support for PQF on SRU targets. */
         if (strcmp(query_syntax, "pqf") != 0 && *sru)
         {
