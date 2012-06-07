@@ -879,7 +879,11 @@ static void write_subrecord(struct record *r, WRBUF w,
 
     wrbuf_puts(w, "name=\"");
     wrbuf_xmlputs(w,  *name ? name : "Unknown");
-    wrbuf_puts(w, "\">");
+    wrbuf_puts(w, "\" ");
+
+    wrbuf_printf(w, "position=\"%d\"", r->position - 1); // -1 because position counting is 1-based
+
+    wrbuf_puts(w, ">");
 
     write_metadata(w, service, r->metadata, show_details);
     wrbuf_puts(w, "</location>\n");
