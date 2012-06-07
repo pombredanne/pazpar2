@@ -50,6 +50,7 @@ struct reclist_sortparms *reclist_parse_sortparms(NMEM nmem, const char *parms,
 
 int reclist_get_num_records(struct reclist *l);
 struct record_cluster *reclist_get_cluster(struct reclist *l, int i);
+struct record *reclist_get_ingested(struct reclist *l);
 
 #endif
 
