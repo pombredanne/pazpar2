@@ -1122,8 +1122,8 @@ static void show_records(struct http_channel *c, struct http_session *s, int act
             write_subrecord(p, c->wrbuf, service, 0); // subrecs w/o details
         if (ccount > 1)
             wrbuf_printf(c->wrbuf, "<count>%d</count>\n", ccount);
-    if (strstr(sort, "relevance"))
-        wrbuf_printf(c->wrbuf, "<relevance>%d</relevance>\n",
+        if (strstr(sort, "relevance"))
+            wrbuf_printf(c->wrbuf, "<relevance>%d</relevance>\n",
                          rec->relevance_score);
         wrbuf_puts(c->wrbuf, "<recid>");
         wrbuf_xmlputs(c->wrbuf, rec->recid);
@@ -1238,6 +1238,7 @@ static void cmd_show(struct http_channel *c)
     release_session(c, s);
 }
 
+
 /**
  * Show a selected range of records. The range is given by <start, end) indices
  * into a list of ingested records. The list of ingested records grows as new
@@ -1255,6 +1256,7 @@ static void cmd_ingested(struct http_channel *c)
     struct http_session *s = locate_session(c);
     const char *start = http_argbyname(rq, "start");
     const char *end = http_argbyname(rq, "end");
+    struct session *se = s->psession;
     struct record *all;
     int startn = 0;
     int endn = -1;
@@ -1271,17 +1273,23 @@ static void cmd_ingested(struct http_channel *c)
     yaz_log(YLOG_LOG, "Rendering ingested records[%d:%d]", startn, endn);
     response_open(c, "ingested");
 
-    for (all = session_get_ingested(s->psession); all; all = all->next, i++)
+    wrbuf_printf(c->wrbuf, "\n<activeclients>%d</activeclients>\n", session_active_clients(se));
+    wrbuf_printf(c->wrbuf, "<total>%d</total>\n", session_total_hits(se));
+    wrbuf_printf(c->wrbuf, "<start>%d</start>\n", startn);
+    wrbuf_puts(c->wrbuf, "<hit>\n");
+    for (all = session_get_ingested(se); all; all = all->next, i++)
     {
         if (endn >= 0 && i >= endn)
             break;
         if (i >= startn)
-            write_subrecord(all, c->wrbuf, s->psession->service, 1 /* render full details */);
+            write_subrecord(all, c->wrbuf, se->service, 1 /* render full details */);
     }
+    wrbuf_puts(c->wrbuf, "</hit>\n");
 
     response_close(c, "ingested");
     release_session(c, s);
 }
+
 
 static void cmd_ping(struct http_channel *c)
 {
