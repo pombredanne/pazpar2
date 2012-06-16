@@ -53,6 +53,7 @@ struct record_cluster *reclist_get_cluster(struct reclist *l, int i);
 
 int reclist_ingest(struct reclist *l, struct record *record);
 struct record *reclist_get_ingested(struct reclist *l);
+int reclist_get_num_ingested(struct reclist *l);
 
 #endif
 
